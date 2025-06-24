@@ -161,6 +161,7 @@ if not resultado.empty:
         st.markdown("**🟩 Desempeño académico**")
         fig_g2 = px.bar(comparacion_2, x="Indicador", y=["Estudiante", "Promedio grupo"],
                         barmode="group", text_auto=True)
+        fig_g2.update_layout(showlegend=False)
         st.plotly_chart(fig_g2, use_container_width=True)
 
     # Calificaciones por actividad
@@ -174,6 +175,7 @@ if not resultado.empty:
 
     fig2 = px.bar(df_notas, x="Actividad", y="Calificación",
                   color="Calificación", text_auto=True)
+    fig2.update_layout(showlegend=False)
     st.plotly_chart(fig2, use_container_width=True)
 
     # Comentario automático comparado con promedio del grupo
