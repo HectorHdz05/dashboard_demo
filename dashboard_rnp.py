@@ -61,7 +61,7 @@ st.set_page_config(layout="wide")
 # ======================
 # CARGA Y LIMPIEZA DE DATOS
 # ======================
-st.title("📊 MA1042 - Tablero académico Período 1")
+st.title("📊 MA1042 - Tablero académico Periodo 1")
 
 # Cargar CSV
 df = pd.read_csv("seguimiento_alumnos.csv", encoding="utf-8")
