@@ -13,7 +13,7 @@ import plotly.express as px
 from datetime import timedelta
 
 # Cargar datos
-df = pd.read_excel("seguimiento_alumnos.xlsx")
+df = pd.read_csv("seguimiento_alumnos.csv")
 
 # Convertir tiempo a minutos (si está como texto HH:MM:SS)
 def time_to_minutes(t):
