@@ -122,18 +122,6 @@ if not resultado.empty:
     col5.metric("✅ Actividades completadas", filtro['Completadas'])
     col6.metric("📝 Calificación final", round(filtro['Final'], 2))
 
-    # Comparativo vs promedio del grupo
-    st.subheader("📊 Comparativo con promedio del grupo")
-    df_comp = pd.DataFrame({
-        "Indicador": columnas_numericas,
-        "Estudiante": [filtro[col] for col in columnas_numericas],
-        "Promedio grupo": df[columnas_numericas].mean().values
-    })
-
-    fig = px.bar(df_comp, x="Indicador", y=["Estudiante", "Promedio grupo"],
-                 barmode="group", text_auto=True)
-    st.plotly_chart(fig, use_container_width=True)
-
     # ========================
     # Comparativo dividido
     # ========================
