@@ -154,7 +154,7 @@ if not resultado.empty:
         st.markdown("**🟦 Actividad en plataforma**")
         fig_g1 = px.bar(comparacion_1, x="Indicador", y=["Estudiante", "Promedio grupo"],
                         barmode="group", text_auto=True)
-        fig.update_layout(showlegend=False)
+        fig_g1.update_layout(showlegend=False)
         st.plotly_chart(fig_g1, use_container_width=True)
     
     with col_g2:
