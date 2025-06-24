@@ -1,6 +1,57 @@
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
+import io
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+
+def generar_pdf(fila_estudiante, notas_actividades, comentario):
+    buffer = io.BytesIO()
+    c = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+    c.setTitle("Reporte académico")
+
+    # Encabezado
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(1 * inch, height - 1 * inch, f"Reporte académico – {fila_estudiante['Matricula']}")
+
+    c.setFont("Helvetica", 11)
+    c.drawString(1 * inch, height - 1.3 * inch, f"Participaciones: {fila_estudiante['Participaciones']}")
+    c.drawString(1 * inch, height - 1.5 * inch, f"Vistas: {fila_estudiante['Vistas']}")
+    c.drawString(1 * inch, height - 1.7 * inch, f"Minutos activos: {round(fila_estudiante['Minutos en plataforma'], 1)}")
+    c.drawString(1 * inch, height - 1.9 * inch, f"% Avance del curso: {fila_estudiante['%Avance del curso']}%")
+    c.drawString(1 * inch, height - 2.1 * inch, f"Completadas: {fila_estudiante['Completadas']}")
+    c.drawString(1 * inch, height - 2.3 * inch, f"Faltantes: {fila_estudiante['Faltantes']}")
+    c.drawString(1 * inch, height - 2.5 * inch, f"Nota final: {round(fila_estudiante['Final'], 2)}")
+
+    # Actividades
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(1 * inch, height - 3.0 * inch, "Calificaciones por actividad:")
+
+    c.setFont("Helvetica", 10)
+    y_pos = height - 3.3 * inch
+    for actividad, nota in notas_actividades.items():
+        c.drawString(1.2 * inch, y_pos, f"{actividad}: {nota}")
+        y_pos -= 0.2 * inch
+        if y_pos < 1 * inch:
+            c.showPage()
+            y_pos = height - 1 * inch
+
+    # Comentario
+    c.setFont("Helvetica-Bold", 12)
+    y_pos -= 0.3 * inch
+    c.drawString(1 * inch, y_pos, "Comentario del sistema:")
+
+    c.setFont("Helvetica", 10)
+    y_pos -= 0.2 * inch
+    for line in comentario.splitlines():
+        c.drawString(1.2 * inch, y_pos, line)
+        y_pos -= 0.2 * inch
+
+    c.save()
+    buffer.seek(0)
+    return buffer
 
 # ======================
 # CONFIGURACIÓN INICIAL
@@ -96,7 +147,6 @@ if not resultado.empty:
                   color="Calificación", text_auto=True)
     st.plotly_chart(fig2, use_container_width=True)
 
-    # Comentario automático
     # Comentario automático comparado con promedio del grupo
     st.subheader("💬 Comentario sugerido")
     
@@ -111,6 +161,28 @@ if not resultado.empty:
         st.info("Estás en el promedio del grupo. ¡Sigue así y busca pequeñas mejoras!")
     elif nota_final > prom_grupo + 1:
         st.success("¡Vas por encima del promedio del grupo! Excelente desempeño.")
+
+    # Descarga en PDF
+    st.subheader("⬇️ Descargar reporte en PDF")
+    
+    comentario_final = ""
+    if pd.isna(nota_final):
+        comentario_final = "Este estudiante no tiene una nota final registrada aún."
+    elif nota_final < prom_grupo - 1:
+        comentario_final = "Tu nota está por debajo del promedio del grupo. Revisa actividades pendientes y solicita retroalimentación."
+    elif prom_grupo - 1 <= nota_final <= prom_grupo + 1:
+        comentario_final = "Estás en el promedio del grupo. ¡Sigue así y busca pequeñas mejoras!"
+    elif nota_final > prom_grupo + 1:
+        comentario_final = "¡Vas por encima del promedio del grupo! Excelente desempeño."
+    
+    pdf_bytes = generar_pdf(filtro, df_notas.set_index("Actividad")["Calificación"].to_dict(), comentario_final)
+    
+    st.download_button(
+        label="Descargar reporte PDF",
+        data=pdf_bytes,
+        file_name=f"reporte_{filtro['Matricula']}.pdf",
+        mime="application/pdf"
+    )
 
 else:
     st.warning("⚠️ No se encontró información para esta matrícula. Revisa el archivo CSV.")
