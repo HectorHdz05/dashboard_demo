@@ -95,11 +95,11 @@ for col in columnas_numericas:
     df[col] = pd.to_numeric(df[col], errors='coerce')
 
 # ======================
-# SIDEBAR – FILTRO DE ESTUDIANTE
+# FILTRO DE ESTUDIANTE
 # ======================
-st.sidebar.title("🔎 Filtro de estudiante")
-matricula_select = st.sidebar.selectbox("Selecciona una matrícula", df['Matricula'].unique())
-resultado = df[df['Matricula'] == matricula_select]
+st.subheader("🔎 Buscar matrícula")
+matricula_input = st.text_input("Ingresa tu matrícula exacta (ej. A00012345):").strip()
+resultado = df[df['Matricula'].astype(str).str.strip() == matricula_input]
 
 # ======================
 # MOSTRAR DASHBOARD
@@ -133,6 +133,46 @@ if not resultado.empty:
     fig = px.bar(df_comp, x="Indicador", y=["Estudiante", "Promedio grupo"],
                  barmode="group", text_auto=True)
     st.plotly_chart(fig, use_container_width=True)
+
+    # ========================
+    # Comparativo dividido
+    # ========================
+    st.subheader("📊 Comparativo con el grupo")
+    
+    # Gráfico 1 – Vistas y tiempo
+    comparacion_1 = pd.DataFrame({
+        "Indicador": ['Vistas', 'Minutos en plataforma'],
+        "Estudiante": [filtro['Vistas'], filtro['Minutos en plataforma']],
+        "Promedio grupo": [
+            df['Vistas'].mean(), df['Minutos en plataforma'].mean()
+        ]
+    })
+    
+    # Gráfico 2 – Participaciones y calificaciones
+    comparacion_2 = pd.DataFrame({
+        "Indicador": ['Participaciones', 'Completadas', 'Faltantes', 'Final'],
+        "Estudiante": [filtro['Participaciones'], filtro['Completadas'], filtro['Faltantes'], filtro['Final']],
+        "Promedio grupo": [
+            df['Participaciones'].mean(),
+            df['Completadas'].mean(),
+            df['Faltantes'].mean(),
+            df['Final'].mean()
+        ]
+    })
+    
+    col_g1, col_g2 = st.columns(2)
+    
+    with col_g1:
+        st.markdown("**🟦 Actividad en plataforma**")
+        fig_g1 = px.bar(comparacion_1, x="Indicador", y=["Estudiante", "Promedio grupo"],
+                        barmode="group", text_auto=True)
+        st.plotly_chart(fig_g1, use_container_width=True)
+    
+    with col_g2:
+        st.markdown("**🟩 Desempeño académico**")
+        fig_g2 = px.bar(comparacion_2, x="Indicador", y=["Estudiante", "Promedio grupo"],
+                        barmode="group", text_auto=True)
+        st.plotly_chart(fig_g2, use_container_width=True)
 
     # Calificaciones por actividad
     st.subheader("🧾 Desempeño por actividad")
