@@ -61,7 +61,7 @@ st.set_page_config(layout="wide")
 # ======================
 # CARGA Y LIMPIEZA DE DATOS
 # ======================
-st.title("📊 Tablero académico personalizado")
+st.title("📊 MA1042 - Tablero académico Período 1")
 
 # Cargar CSV
 df = pd.read_csv("seguimiento_alumnos.csv", encoding="utf-8")
@@ -119,8 +119,8 @@ if not resultado.empty:
 
     col4, col5, col6 = st.columns(3)
     col4.metric("📈 Avance del curso", f"{filtro['%Avance del curso']}%")
-    col5.metric("✅ Completadas", filtro['Completadas'])
-    col6.metric("📝 Nota final", round(filtro['Final'], 2))
+    col5.metric("✅ Actividades completadas", filtro['Completadas'])
+    col6.metric("📝 Calificación final", round(filtro['Final'], 2))
 
     # Comparativo vs promedio del grupo
     st.subheader("📊 Comparativo con promedio del grupo")
@@ -143,12 +143,12 @@ if not resultado.empty:
         "Calificación": notas.values
     }).dropna()
 
-    fig2 = px.bar(df_notas, x="Actividad", y="Calificación",
+    fig2 = px.bar(df_notas, x="Entrega", y="Calificación",
                   color="Calificación", text_auto=True)
     st.plotly_chart(fig2, use_container_width=True)
 
     # Comentario automático comparado con promedio del grupo
-    st.subheader("💬 Comentario sugerido")
+    st.subheader("💬 Feedback sugerido")
     
     nota_final = filtro['Final']
     prom_grupo = df['Final'].mean()
