@@ -143,7 +143,7 @@ if not resultado.empty:
         "Calificación": notas.values
     }).dropna()
 
-    fig2 = px.bar(df_notas, x="Entrega", y="Calificación",
+    fig2 = px.bar(df_notas, x="Actividad", y="Calificación",
                   color="Calificación", text_auto=True)
     st.plotly_chart(fig2, use_container_width=True)
 
