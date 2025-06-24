@@ -57,7 +57,8 @@ if not resultado.empty:
     filtro = resultado.iloc[0]
     nombre = filtro['Nombre alumno'] if 'Nombre alumno' in df.columns else 'Estudiante sin nombre'
     
-    st.header(f"Desempeño académico de: {nombre}")
+    st.header(f"Desempeño académico de: {filtro['Matricula']}")
+
     
     # Métricas principales
     col1, col2, col3 = st.columns(3)
@@ -96,13 +97,20 @@ if not resultado.empty:
     st.plotly_chart(fig2, use_container_width=True)
 
     # Comentario automático
+    # Comentario automático comparado con promedio del grupo
     st.subheader("💬 Comentario sugerido")
-    if filtro['Faltantes'] > 5:
-        st.warning("Tienes varias actividades pendientes. Prioriza entregas esta semana.")
-    elif filtro['Final'] >= 17:
-        st.success("¡Excelente trabajo! Tu desempeño es sobresaliente.")
-    else:
-        st.info("Vas bien, pero aún puedes mejorar tus entregas y participación.")
+    
+    nota_final = filtro['Final']
+    prom_grupo = df['Final'].mean()
+    
+    if pd.isna(nota_final):
+        st.warning("Este estudiante no tiene una nota final registrada aún.")
+    elif nota_final < prom_grupo - 1:
+        st.warning("Tu nota está por debajo del promedio del grupo. Revisa actividades pendientes y solicita retroalimentación.")
+    elif prom_grupo - 1 <= nota_final <= prom_grupo + 1:
+        st.info("Estás en el promedio del grupo. ¡Sigue así y busca pequeñas mejoras!")
+    elif nota_final > prom_grupo + 1:
+        st.success("¡Vas por encima del promedio del grupo! Excelente desempeño.")
 
 else:
     st.warning("⚠️ No se encontró información para esta matrícula. Revisa el archivo CSV.")
